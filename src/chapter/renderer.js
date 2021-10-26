@@ -18,6 +18,7 @@ export default class Renderer {
 
     this.setInstance()
     this.setPostProcess()
+    this.setEventListener()
   }
 
   setInstance() {
@@ -61,6 +62,28 @@ export default class Renderer {
     this.postProcess.composer.setPixelRatio(this.config.pixelRatio)
 
     this.postProcess.composer.addPass(this.postProcess.renderPass)
+  }
+
+  setEventListener() {
+    window.addEventListener('dblclick', () => {
+      const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement
+      this.instance.domElement.requestPointerLock = this.instance.domElement.requestPointerLock || this.instance.domElement.mozRequestPointerLock
+      this.instance.domElement.requestPointerLock()
+
+      if (!fullscreenElement) {
+        if (this.instance.domElement.requestFullscreen) {
+          this.instance.domElement.requestFullscreen()
+        } else if (this.instance.domElement.webkitRequestFullscreen) {
+          this.instance.domElement.webkitRequestFullscreen()
+        }
+      } else {
+        if (document.exitFullscreen()) {
+          document.exitFullscreen()
+        } else if (document.webkitExitFullscreen()) {
+          document.webkitExitFullscreen()
+        }
+      }
+    })
   }
 
   resize() {

@@ -41,8 +41,6 @@ export default class Chapter {
     this.setPhysics()
     this.setWorld()
 
-    this.v3 = 0
-
     this.sizes.on('resize', () => { this.resize() })
 
     this.update()

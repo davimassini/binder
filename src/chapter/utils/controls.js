@@ -78,6 +78,7 @@ export default class Controls {
         case this.keysBind.moveJump:
           if (this.moveJump === true) {
             this.velocity.y = this.jumpVelocity
+            this.velocityFactor = 150
           }
           this.moveJump = false
           break
@@ -167,6 +168,7 @@ export default class Controls {
 
     if (this.cannonBody.position.y < 0.1) {
       this.moveJump = true
+      this.velocityFactor = 1500
     }
 
     if (this.mouseMove) {
