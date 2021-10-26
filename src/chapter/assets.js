@@ -11,7 +11,8 @@ export default [
     data: {},
     items:
       [
-        { name: 'soldierBoy', source: '/assets/models/Soldier.glb' }
+        { name: 'soldierBoy', source: '/assets/models/Soldier.glb' },
+        { name: 'foxAnimal', source: '/assets/models/Fox/Fox.gltf' }
       ]
   },
 ]

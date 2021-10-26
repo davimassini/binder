@@ -2,6 +2,7 @@ import * as CANNON from 'cannon-es'
 import Chapter from './chapter.js'
 
 import MainPhyCharacter from './pages/lineCharacters/humanCharacter/phyCharacter.js'
+import FoxPhyCharacter from './pages/lineCharacters/foxCharacter/phyCharacter.js'
 
 export default class Physics {
   constructor(_options) {
@@ -27,6 +28,7 @@ export default class Physics {
 
       if (_group.name === 'mainCharacter') {
         this.setMainCharacter()
+        this.setFoxCharacter()
       }
     })
   }
@@ -46,21 +48,21 @@ export default class Physics {
     for (let i = 0; i < boxCount; i++) {
       const randomlyMath = Math.random()
 
-      const phyFloorShape = new CANNON.Box(new CANNON.Vec3(
+      const phyBoxShape = new CANNON.Box(new CANNON.Vec3(
         randomlyMath * 0.5,
         randomlyMath * 0.5,
         randomlyMath * 0.5
       ))
 
-      const phyFloorBody = new CANNON.Body({
-        mass: 1500, shape: phyFloorShape
+      const phyBoxBody = new CANNON.Body({
+        mass: 1500, shape: phyBoxShape
       })
 
-      phyFloorBody.position.y = Math.random() * 10
-      phyFloorBody.position.x = (Math.random() - 0.5) * 10
-      phyFloorBody.position.z = (Math.random() - 0.5) * 10
+      phyBoxBody.position.y = Math.random() * 10
+      phyBoxBody.position.x = (Math.random() - 0.5) * 10
+      phyBoxBody.position.z = (Math.random() - 0.5) * 10
 
-      this.cannon.addBody(phyFloorBody)
+      this.cannon.addBody(phyBoxBody)
     }
   }
 
@@ -92,8 +94,20 @@ export default class Physics {
       if (this.scene.getObjectByName('SoldierObj')) {
         const thisObj = this.scene.getObjectByName('SoldierObj')
 
-        this.boxPhyCharacter = new MainPhyCharacter(thisObj)
-        this.cannon.addBody(this.boxPhyCharacter.characterBody)
+        this.mainPhyCharacter = new MainPhyCharacter(thisObj)
+        this.cannon.addBody(this.mainPhyCharacter.characterBody)
+      }
+    }, 400)
+  }
+
+  setFoxCharacter() {
+    // ARRUMAR P N USAR MAIS TIMEOUT - talvez jogar obrigação de if pra cima
+    setTimeout(() => {
+      if (this.scene.getObjectByName('FoxObj')) {
+        const thisObj = this.scene.getObjectByName('FoxObj')
+
+        this.foxPhyCharacter = new FoxPhyCharacter(thisObj)
+        this.cannon.addBody(this.foxPhyCharacter.characterBody)
       }
     }, 400)
   }
@@ -130,6 +144,14 @@ export default class Physics {
 
   update() {
     this.cannon.step(1 / 60, this.chapter.time.delta, 3)
+
+    // Characters Update
+    if (this.mainPhyCharacter) { 
+      this.mainPhyCharacter.update()
+    }
+    if (this.foxPhyCharacter) { 
+      this.foxPhyCharacter.update()
+    }
   }
 
   destroy() { }

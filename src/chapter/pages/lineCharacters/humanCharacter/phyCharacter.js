@@ -1,7 +1,7 @@
 import * as CANNON from 'cannon-es'
 import { threeToCannon, ShapeType } from 'three-to-cannon'
 
-import PointerLockControls from '../../../utils/controls.js'
+import Controls from '../../../utils/controls.js'
 import Chapter from '../../../chapter'
 
 export default class MainPhyCharacter {
@@ -11,32 +11,17 @@ export default class MainPhyCharacter {
 
     const { shape, offset } = threeToCannon(_obj3D, { type: ShapeType.BOX })
 
-    this.characterBody = new CANNON.Body({ mass: 10, shape: shape })
+    this.characterBody = new CANNON.Body({ mass: 150, shape: shape })
     this.characterBody.id = 'SoldierPhy'
-    this.characterBody.stats = { hp: 100 }
-    this.characterBody.position.y = 15
     this.characterBody.shapeOffsets[0].copy(offset)
 
-    this.setControls()
     this.setStats()
-    
-  }
-
-  setControls() {
-    this.controls = {}
-
-    document.addEventListener('keydown', (event) => {
-      switch (event.key) {
-        case ' ':
-          this.characterBody.velocity.y = 10
-          this.characterBody.velocity.z = 0
-          this.characterBody.velocity.x = 0
-          break
-      }
-    })
+    this.setControls()
   }
 
   setStats() {
+    this.characterBody.stats = { hp: 100 }
+
     if (this.characterBody.stats.hp) {
       document.querySelector('.app').innerHTML =
       `
@@ -44,6 +29,18 @@ export default class MainPhyCharacter {
           <p class="hp-stats">HP: ${this.characterBody.stats.hp}</p>
         </div>
       `
+    }
+  }
+
+  setControls() {
+    setTimeout(() =>  {
+      this.controls = new Controls(this.characterBody)
+    }, 600)
+  }
+
+  update() {
+    if (this.controls) { 
+      this.controls.update()
     }
   }
 }

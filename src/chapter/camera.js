@@ -12,8 +12,7 @@ export default class Camera {
     this.targetElement = this.chapter.targetElement
     this.scene = this.chapter.scene
 
-    this.mode = 'debug' // defaultCamera \ debugCamera
-
+    this.mode = window.location.hash === "#debug" ? 'debug' : 'default'
     this.setInstance()
     this.setModes()
   }
@@ -31,11 +30,13 @@ export default class Camera {
     this.modes.default = {}
     this.modes.default.instance = this.instance.clone()
     // this.modes.default.instance.rotation.reorder('YXZ')
+    this.modes.default.instance.position.set(0, 3, 2)
+    this.modes.default.instance.lookAt(0, 2, 0)
 
     this.modes.debug = {}
     this.modes.debug.instance = this.instance.clone()
-    // this.modes.debug.instance.rotation.reorder('YXZ')
     this.modes.debug.instance.position.set(8, 12, 8)
+    // this.modes.debug.instance.rotation.reorder('YXZ')
 
     this.modes.debug.orbitControls = new OrbitControls(this.modes.debug.instance, this.targetElement)
     this.modes.debug.orbitControls.enabled = this.modes.debug.active

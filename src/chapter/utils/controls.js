@@ -1,181 +1,176 @@
-/**
- * @author mrdoob / http://mrdoob.com/
- * @author schteppe / https://github.com/schteppe
- */
-
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 
-export default function PointerLockControls( camera, cannonBody ) {
+import Chapter from '../chapter.js'
+import MoveCamera from './moveControls/moveCamera.js'
 
-    var eyeYPos = 2; // eyes are 2 meters above the ground
-    var velocityFactor = 0.2;
-    var jumpVelocity = 20;
-    var scope = this;
+export default class Controls {
+  constructor(_options) {
+    this.chapter = new Chapter()
+    this.time = this.chapter.time
+    this.cannon = this.chapter.phisycs.cannon
 
-    var pitchObject = new THREE.Object3D();
-    pitchObject.add( camera );
+    this.toggleRun = true
+    this.currentAction = ''
 
-    var yawObject = new THREE.Object3D();
-    yawObject.position.y = 2;
-    yawObject.add( pitchObject );
+    this.setVariables(_options.id)
 
-    var quat = new THREE.Quaternion();
+    this.setControlKey()
+    this.setControlEvents()
+    this.setConstrolsCollide()
 
-    var moveForward = false;
-    var moveBackward = false;
-    var moveLeft = false;
-    var moveRight = false;
+    this.update()
+  }
 
-    var canJump = false;
+  setVariables(_cannonID) {
+    this.cannonBody = this.cannon.bodies.filter(bodyFind => bodyFind.id == _cannonID)[0]
+    this.velocity = this.cannonBody.velocity
 
-    var contactNormal = new CANNON.Vec3(); // Normal in the contact, pointing *out* of whatever the player touched
-    var upAxis = new CANNON.Vec3(0,1,0);
-    cannonBody.addEventListener("collide",function(e){
-        var contact = e.contact;
+    this.euler = new THREE.Euler()
+    this.quaternion = new THREE.Quaternion()
+    this.inputVelocity = new THREE.Vector3()
+    this.contactNormal = new CANNON.Vec3()
 
-        // contact.bi and contact.bj are the colliding bodies, and contact.ni is the collision normal.
-        // We do not yet know which one is which! Let's check.
-        if(contact.bi.id == cannonBody.id)  // bi is the player body, flip the contact normal
-            contact.ni.negate(contactNormal);
-        else
-            contactNormal.copy(contact.ni); // bi is something else. Keep the normal as it is
+    this.pitchObject = new THREE.Object3D()
+    this.yawObject = new THREE.Object3D()
 
-        // If contactNormal.dot(upAxis) is between 0 and 1, we know that the contact normal is somewhat in the up direction.
-        if(contactNormal.dot(upAxis) > 0.5) // Use a "good" threshold value between 0 and 1 here!
-            canJump = true;
-    });
+    this.jumpVelocity = 10
+    this.velocityFactor = 1500
+    this.upAxis = new CANNON.Vec3(0, 1, 0)
+  }
 
-    var velocity = cannonBody.velocity;
-
-    var PI_2 = Math.PI / 2;
-
-    var onMouseMove = function ( event ) {
-
-        if ( scope.enabled === false ) return;
-
-        var movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
-        var movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
-
-        yawObject.rotation.y -= movementX * 0.002;
-        pitchObject.rotation.x -= movementY * 0.002;
-
-        pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
-    };
-
-    var onKeyDown = function ( event ) {
-
-        switch ( event.keyCode ) {
-
-            case 38: // up
-            case 87: // w
-                moveForward = true;
-                break;
-
-            case 37: // left
-            case 65: // a
-                moveLeft = true; break;
-
-            case 40: // down
-            case 83: // s
-                moveBackward = true;
-                break;
-
-            case 39: // right
-            case 68: // d
-                moveRight = true;
-                break;
-
-            case 32: // space
-                if ( canJump === true ){
-                    velocity.y = jumpVelocity;
-                }
-                canJump = false;
-                break;
-        }
-
-    };
-
-    var onKeyUp = function ( event ) {
-
-        switch( event.keyCode ) {
-
-            case 38: // up
-            case 87: // w
-                moveForward = false;
-                break;
-
-            case 37: // left
-            case 65: // a
-                moveLeft = false;
-                break;
-
-            case 40: // down
-            case 83: // a
-                moveBackward = false;
-                break;
-
-            case 39: // right
-            case 68: // d
-                moveRight = false;
-                break;
-
-        }
-
-    };
-
-    document.addEventListener( 'mousemove', onMouseMove, false );
-    document.addEventListener( 'keydown', onKeyDown, false );
-    document.addEventListener( 'keyup', onKeyUp, false );
-
-    this.enabled = false;
-
-    this.getObject = function () {
-        return yawObject;
-    };
-
-    this.getDirection = function(targetVec){
-        targetVec.set(0,0,-1);
-        quat.multiplyVector3(targetVec);
+  setControlKey() {
+    this.keysBind = {
+      moveFoward: ['w', 'ArrowUp'],
+      moveBackward: ['s', 'ArrowDown'],
+      moveLeft: ['a', 'ArrowLeft'],
+      moveRight: ['d', 'ArrowRight'],
+      moveJump: ' ',
+      moveShift: 'Shift'
     }
 
-    // Moves the camera to the Cannon.js object position and adds velocity to the object if the run key is down
-    var inputVelocity = new THREE.Vector3();
-    var euler = new THREE.Euler();
-    this.update = function ( delta ) {
+    this.moveFoward = false
+    this.moveBackward = false
+    this.moveLeft = false
+    this.moveRight = false
+    this.moveJump = true
+  }
 
-        if ( scope.enabled === false ) return;
+  setControlEvents() {
+    document.addEventListener('keydown', (event) => {
+      switch (event.key) {
+        case this.keysBind.moveFoward[0]:
+        case this.keysBind.moveFoward[1]:
+          this.moveFoward = true
+          break
+        case this.keysBind.moveBackward[0]:
+        case this.keysBind.moveBackward[1]:
+          this.moveBackward = true
+          break
+        case this.keysBind.moveLeft[0]:
+        case this.keysBind.moveLeft[1]:
+          this.moveLeft = true
+          break
+        case this.keysBind.moveRight[0]:
+        case this.keysBind.moveRight[1]:
+          this.moveRight = true
+          break
+        case this.keysBind.moveJump:
+          if (this.moveJump === true) {
+            this.velocity.y = this.jumpVelocity
+          }
+          this.moveJump = false
+          break
+        case this.keysBind.moveShift:
+          this.toggleRun = true
+          break
+      }
+    })
 
-        delta *= 0.1;
+    document.addEventListener('keyup', (event) => {
+      switch (event.key) {
+        case this.keysBind.moveFoward[0]:
+        case this.keysBind.moveFoward[1]:
+          this.moveFoward = false
+          break
+        case this.keysBind.moveBackward[0]:
+        case this.keysBind.moveBackward[1]:
+          this.moveBackward = false
+          break
+        case this.keysBind.moveLeft[0]:
+        case this.keysBind.moveLeft[1]:
+          this.moveLeft = false
+          break
+        case this.keysBind.moveRight[0]:
+        case this.keysBind.moveRight[1]:
+          this.moveRight = false
+          break
+        case this.keysBind.moveShift:
+          this.toggleRun = false
+          break
+      }
+    })
 
-        inputVelocity.set(0,0,0);
+    this.mouseMove = new MoveCamera(this.cannonBody)
+  }
 
-        if ( moveForward ){
-            inputVelocity.z = -velocityFactor * delta;
-        }
-        if ( moveBackward ){
-            inputVelocity.z = velocityFactor * delta;
-        }
+  setConstrolsCollide() {
+    this.cannonBody.addEventListener("collide", (e) => {
+      var contact = e.contact
 
-        if ( moveLeft ){
-            inputVelocity.x = -velocityFactor * delta;
-        }
-        if ( moveRight ){
-            inputVelocity.x = velocityFactor * delta;
-        }
+      if (contact.bi.id == this.cannonBody.id) {
+        contact.ni.negate(this.contactNormal)
+      } else {
+        this.contactNormal.copy(contact.ni)
+      }
+    })
+  }
 
-        // Convert velocity to world coordinates
-        euler.x = pitchObject.rotation.x;
-        euler.y = yawObject.rotation.y;
-        euler.order = "XYZ";
-        quat.setFromEuler(euler);
-        inputVelocity.applyQuaternion(quat);
-        //quat.multiplyVector3(inputVelocity);
+  update() {
+    this.inputVelocity.set(0, 0, 0)
 
-        // Add to the object
-        velocity.x += inputVelocity.x;
-        velocity.z += inputVelocity.z;
+    if (this.moveFoward) {
+      this.inputVelocity.z = - this.velocityFactor * this.time.delta
+    }
 
-        yawObject.position.copy(cannonBody.position);
-    };
-};
+    if (this.moveBackward) {
+      this.inputVelocity.z = this.velocityFactor * this.time.delta
+    }
+
+    if (this.moveLeft) {
+      this.inputVelocity.x = - this.velocityFactor * this.time.delta
+    }
+
+    if (this.moveRight) {
+      this.inputVelocity.x = this.velocityFactor * this.time.delta
+    }
+
+    /** VELOCIDADE COM SHIFT 
+    if (this.toggleRun == false) {
+      this.velocityFactor = 300
+    } else {
+      this.velocityFactor = 150
+    }
+    */
+
+    /** Convert velocity to world coordinates */
+    // this.euler.x = pitchObject.rotation.x;
+    // this.euler.y = yawObject.rotation.y;
+    // this.euler.order = "XYZ";
+    // quat.setFromEuler(this.euler);
+    // this.inputVelocity.applyQuaternion(this.quaternion)
+
+    this.velocity.x = this.inputVelocity.x
+    this.velocity.z = this.inputVelocity.z
+
+    // this.yawObject.position.copy(this.cannonBody.position)
+
+    if (this.cannonBody.position.y < 0.1) {
+      this.moveJump = true
+    }
+
+    if (this.mouseMove) {
+      this.mouseMove.update(this.time.elapsed)
+    }
+  }
+}

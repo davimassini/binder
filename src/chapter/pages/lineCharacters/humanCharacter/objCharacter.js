@@ -1,5 +1,7 @@
 import * as THREE from 'three'
+
 import Chapter from '../../../chapter'
+import Animations from '../../../utils/animations'
 
 export default class MainObjCharacter {
   constructor(_options) {
@@ -43,12 +45,8 @@ export default class MainObjCharacter {
           <div class="input-key">H</div>
         </div>
         <div class="control-input">
-          <div class="input-title">T-Pose</div>
-          <div class="input-key">J</div>
-        </div>
-        <div class="control-input">
           <div class="input-title">Walk</div>
-          <div class="input-key">K</div>
+          <div class="input-key">J</div>
         </div>
     `
 
@@ -56,40 +54,14 @@ export default class MainObjCharacter {
   }
 
   setAnimations() {
-    this.mixer = new THREE.AnimationMixer(this.object.scene)
-    let action
-
-    document.addEventListener('keydown', (e) => {
-      switch (e.key) {
-        case 'g':
-          if (action != null) { action.stop() }
-          action = this.mixer.clipAction(this.object.animations[0])
-          action.play()
-          break
-        case 'h':
-          if (action != null) { action.stop() }
-          action = this.mixer.clipAction(this.object.animations[1])
-          action.play()
-          break
-        case 'j':
-          if (action != null) { action.stop() }
-          action = this.mixer.clipAction(this.object.animations[2])
-          action.play()
-          break
-        case 'k':
-          if (action != null) { action.stop() }
-          action = this.mixer.clipAction(this.object.animations[3])
-          action.play()
-          break
-      }
-    })
+    this.animations = new Animations(this.object)
   }
 
   setCameraControl() { }
 
   update() {
-    if(this.mixer != null){
-      this.mixer.update(this.chapter.time.delta)
+    if(this.animations) {
+      this.animations.update()
     }
   }
 }

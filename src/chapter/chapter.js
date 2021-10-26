@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import * as CANNON from 'cannon-es'
 import cannonDebugger from 'cannon-es-debugger'
 
 import Time from './utils/time.js'
@@ -39,6 +40,8 @@ export default class Chapter {
     this.setResources()
     this.setPhysics()
     this.setWorld()
+
+    this.v3 = 0
 
     this.sizes.on('resize', () => { this.resize() })
 
@@ -81,7 +84,7 @@ export default class Chapter {
   setPhysics() {
     const physicsOptions = {}
     physicsOptions.useGravity = [0, -9.82, 0]
-    physicsOptions.dCM = { friction: 0, cES: 1e7, cER: 4 }
+    physicsOptions.dCM = { friction: 1, cES: 1e7, cER: 4 }
 
     this.phisycs = new Physics(physicsOptions)
   }
@@ -107,17 +110,24 @@ export default class Chapter {
       this.renderer.update()
     }
 
-    // Refatorar para um arquivo específico
+    // Refatorar para um arquivo específico - INICIO
     if (this.world.scene.getObjectByName('SoldierObj')) {
       if (this.phisycs.cannon.getBodyById('SoldierPhy')) {
         this.world.scene.getObjectByName('SoldierObj').position.copy(this.phisycs.cannon.getBodyById('SoldierPhy').position)
         this.world.scene.getObjectByName('SoldierObj').quaternion.copy(this.phisycs.cannon.getBodyById('SoldierPhy').quaternion)
-
-        // this.phisycs.cannon.getBodyById('SoldierPhy').position.x = Math.cos(-(this.time.elapsed) * 0.32) * 5
-        // this.phisycs.cannon.getBodyById('SoldierPhy').position.z = Math.sin(-(this.time.elapsed) * 0.32) * 5
       }
     }
 
+    if (this.world.scene.getObjectByName('FoxObj')) {
+      if (this.phisycs.cannon.getBodyById('FoxPhy')) {
+        this.world.scene.getObjectByName('FoxObj').position.copy(this.phisycs.cannon.getBodyById('FoxPhy').position)
+        this.world.scene.getObjectByName('FoxObj').quaternion.copy(this.phisycs.cannon.getBodyById('FoxPhy').quaternion)
+      }
+    }
+    // Refatorar para um arquivo específico - FIM
+
+    // Refatorar para um arquivo específico - INICIO
+    // Refatorar para um arquivo específico - FIM
 
     window.requestAnimationFrame(() => {
       this.update()

@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import Chapter from './chapter.js'
 
 import MainObjCharacter from './pages/lineCharacters/humanCharacter/objCharacter.js'
+import FoxObjCharacter from './pages/lineCharacters/foxCharacter/objCharacter.js'
 
 export default class World {
   constructor(_options) {
@@ -20,6 +21,7 @@ export default class World {
 
       if (_group.name === 'mainCharacter') {
         this.setMainCharacter()
+        this.setFoxCharacter()
       }
     })
   }
@@ -52,15 +54,24 @@ export default class World {
   }
 
   setMainCharacter() {
-    this.boxObjCharacter = new MainObjCharacter()
-    this.scene.add(this.boxObjCharacter.object.scene)
+    this.mainObjCharacter = new MainObjCharacter()
+    this.scene.add(this.mainObjCharacter.object.scene)
+  }
+
+  setFoxCharacter() {
+    this.foxObjCharacter = new FoxObjCharacter()
+    this.scene.add(this.foxObjCharacter.object.scene)
   }
 
   resize() { }
 
   update() {
-    if(this.boxObjCharacter) {
-      this.boxObjCharacter.update()
+    if(this.mainObjCharacter) {
+      this.mainObjCharacter.update()
+    }
+
+    if(this.foxObjCharacter) {
+      this.foxObjCharacter.update()
     }
   }
 
