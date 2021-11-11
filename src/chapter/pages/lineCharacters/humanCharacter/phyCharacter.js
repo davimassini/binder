@@ -13,7 +13,7 @@ export default class MainPhyCharacter {
 
     const { shape, offset } = threeToCannon(_obj3D, { type: ShapeType.BOX })
 
-    this.characterBody = new CANNON.Body({ mass: 150, shape: shape })
+    this.characterBody = new CANNON.Body({ mass: 1500, shape: shape })
     this.characterBody.id = 'SoldierPhy'
     this.characterBody.shapeOffsets[0].copy(offset)
 
@@ -27,7 +27,6 @@ export default class MainPhyCharacter {
     this.characterBody.stats.hp = 100
 
     if (this.characterBody.stats.hp) {
-      console.log(this.characterBody.stats.hp)
       document.querySelector('.app').innerHTML =
         `
         <div class="hp-div">

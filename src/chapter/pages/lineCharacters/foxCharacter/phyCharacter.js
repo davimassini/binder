@@ -8,7 +8,7 @@ export default class PhyCharacter {
     const {shape, offset} = threeToCannon(_obj3D, { type: ShapeType.BOX})
     
     this.characterBody = new CANNON.Body({
-      mass: 400,
+      mass: 10,
       shape: shape
     })
 

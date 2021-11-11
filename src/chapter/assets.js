@@ -3,7 +3,7 @@ export default [
     name: 'baseWorld',
     data: {},
     items: [
-      { name: 'baseLoad', source: '/assets/lenna.png', type: 'texture' }
+      { name: 'checkerBoard8x8', source: '/assets/textures/checkerboard-8x8.png', type: 'texture' },
     ]
   },
   {
@@ -12,7 +12,8 @@ export default [
     items:
       [
         { name: 'soldierBoy', source: '/assets/models/Soldier.glb' },
-        { name: 'foxAnimal', source: '/assets/models/Fox/Fox.gltf' }
+        { name: 'foxAnimal', source: '/assets/models/Fox/Fox.gltf' },
+        { name: 'modeloUrso', source: '/assets/models/trollBigFoot.glb' },
       ]
   },
 ]

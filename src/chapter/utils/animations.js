@@ -9,6 +9,8 @@ export default class Animations {
 
     this.setAnimations()
 
+    this.setState('', this.mixer.clipAction(this.object.animations[0]))
+
     this.update()
   }
 

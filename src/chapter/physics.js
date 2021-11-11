@@ -28,13 +28,13 @@ export default class Physics {
 
       if (_group.name === 'mainCharacter') {
         this.setMainCharacter()
-        this.setFoxCharacter()
+        // this.setFoxCharacter()
       }
     })
   }
 
   setFloor() {
-    const phyFloorShape = new CANNON.Box(new CANNON.Vec3(10, 10, 0.05))
+    const phyFloorShape = new CANNON.Box(new CANNON.Vec3(100, 100, 0.05))
     const phyFloorBody = new CANNON.Body({
       mass: 0, shape: phyFloorShape
     })

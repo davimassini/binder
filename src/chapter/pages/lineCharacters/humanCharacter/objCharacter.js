@@ -25,7 +25,15 @@ export default class MainObjCharacter {
       * })
       ***********************************/
 
+      /*************SHADOWS*************/
+      this.object.scene.traverse((node) => {
+        if (!node.isMesh) return;
+        node.castShadow = true
+      })
+      /***********************************/
+
       this.object.scene.name = 'SoldierObj'
+      // this.object.scene.scale.set(0.4, 0.4, 0.4)
     }
   }
 

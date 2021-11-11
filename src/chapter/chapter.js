@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import * as CANNON from 'cannon-es'
 import cannonDebugger from 'cannon-es-debugger'
+import * as dat from 'dat.gui'
 
 import Time from './utils/time.js'
 import Sizes from './utils/sizes.js'
@@ -56,6 +57,8 @@ export default class Chapter {
     const boundings = this.targetElement.getBoundingClientRect()
     this.config.width = boundings.width
     this.config.height = boundings.height || window.innerHeight
+
+    this.gui = new dat.GUI()
   }
 
   setStats() {
@@ -82,7 +85,7 @@ export default class Chapter {
   setPhysics() {
     const physicsOptions = {}
     physicsOptions.useGravity = [0, -9.82, 0]
-    physicsOptions.dCM = { friction: 1, cES: 1e7, cER: 4 }
+    physicsOptions.dCM = { friction: 0, cES: 1e7, cER: 4 }
 
     this.phisycs = new Physics(physicsOptions)
   }

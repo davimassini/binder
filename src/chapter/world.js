@@ -21,7 +21,8 @@ export default class World {
 
       if (_group.name === 'mainCharacter') {
         this.setMainCharacter()
-        this.setFoxCharacter()
+        // this.setFoxCharacter()
+        // this.setBear()
       }
     })
   }
@@ -44,11 +45,19 @@ export default class World {
   }
 
   setFloor() {
+    this.resources.items.checkerBoard8x8.repeat.set(100, 100)
+    this.resources.items.checkerBoard8x8.wrapS = THREE.RepeatWrapping
+    this.resources.items.checkerBoard8x8.wrapT = THREE.RepeatWrapping
+    this.resources.items.checkerBoard8x8.minFilter = THREE.NearestFilter
+    this.resources.items.checkerBoard8x8.magFilter = THREE.NearestFilter
+
     const floorObj = new THREE.Mesh(
-      new THREE.BoxGeometry(20, 20, 0.1),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
+      new THREE.BoxGeometry(200, 200, 0.1),
+      new THREE.MeshBasicMaterial({ map: this.resources.items.checkerBoard8x8})
     )
     floorObj.rotation.x = Math.PI * 0.5
+
+    floorObj.receiveShadow = true
 
     this.scene.add(floorObj)
   }
@@ -61,6 +70,18 @@ export default class World {
   setFoxCharacter() {
     this.foxObjCharacter = new FoxObjCharacter()
     this.scene.add(this.foxObjCharacter.object.scene)
+  }
+
+  setBear() {
+    const modeloUrso = this.resources.items.modeloUrso
+    
+    modeloUrso.scene.name = 'modeloUrso'
+    modeloUrso.scene.scale.set(0.5, 0.5, 0.5)
+    modeloUrso.scene.rotation.y = Math.PI * 1.5
+    modeloUrso.scene.position.z = -2
+    modeloUrso.scene.position.y = 0.03
+
+    this.scene.add(modeloUrso.scene)
   }
 
   resize() { }
